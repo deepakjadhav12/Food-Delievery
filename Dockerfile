@@ -12,7 +12,7 @@ COPY . .
 
 RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
 
-EXPOSE 3000
+EXPOSE 8888
 
 CMD ["sh", "-c", "NODE_OPTIONS=--openssl-legacy-provider npm start"]
 
