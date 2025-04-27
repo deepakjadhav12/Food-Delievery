@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Run Docker container
-                    bat 'docker run -d -p 8888:8888 food-delivery-app:latest'
+                    bat 'docker run -d -p 3000:3000 food-delivery-app:latest'
                 }
             }
         }
