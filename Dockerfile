@@ -17,7 +17,7 @@ WORKDIR /app
 # Only copy the necessary files from build stage
 COPY --from=builder /app/package.json /app/package-lock.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist  # Assuming your build output is in /dist
+COPY --from=builder /app/build ./build  
 
 EXPOSE 3000
 
