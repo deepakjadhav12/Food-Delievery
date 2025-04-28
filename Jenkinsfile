@@ -41,7 +41,10 @@ pipeline {
             steps {
                 script {
                     echo '🚀 Running new container...'
-                    bat "docker run -d -p %DOCKER_PORT%:%DOCKER_PORT% --name %CONTAINER_NAME% %IMAGE_NAME%:latest"
+                    bat '''
+                        docker run -d --name food-delivery-container -p 3000:3000 food-delivery-app:latest || exit /b 1
+                    '''
+
                 }
             }
         }
