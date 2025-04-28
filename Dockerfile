@@ -4,6 +4,9 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
+# Set Node.js to use legacy openssl provider (important!)
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Install dependencies
 COPY package.json package-lock.json ./
 RUN npm install
