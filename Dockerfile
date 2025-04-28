@@ -1,18 +1,22 @@
-
+# Use node base image
 FROM node:20-alpine
 
+# Set working directory
 WORKDIR /app
 
-
+# Install dependencies
 COPY package.json package-lock.json ./
-
 RUN npm install
 
+# Build the app
 COPY . .
+RUN npm run build
 
-RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
+# Install serve globally
+RUN npm install -g serve
 
+# Expose port 3000
 EXPOSE 3000
 
-CMD ["sh", "-c", "NODE_OPTIONS=--openssl-legacy-provider npm start"]
-
+# Start the app using 'serve'
+CMD ["serve", "-s", "build", "-l", "3000"]
