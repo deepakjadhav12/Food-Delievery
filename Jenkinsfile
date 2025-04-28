@@ -38,16 +38,16 @@ pipeline {
         }
 
         stage('Run New Container') {
-            steps {
-                script {
-                    echo '🚀 Running new container...'
-                    bat '''
-                        docker run -d --name food-delivery-container -p 3000:3000 food-delivery-app:latest || exit /b 1
-                    '''
-
-                }
-            }
+    steps {
+        script {
+            echo '🚀 Running new container...'
+            bat """
+                docker run -d --name %CONTAINER_NAME% -p %DOCKER_PORT%:%DOCKER_PORT% %IMAGE_NAME%:latest || exit /b 1
+            """
         }
+    }
+}
+
 
         stage('Push to Docker Hub') {
             steps {
