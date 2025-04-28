@@ -1,11 +1,17 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'food-delivery-app'
+        CONTAINER_NAME = 'food-delivery-container'
+        DOCKER_PORT = '3000'
+    }
+
     stages {
-        stage('Clone') {
+
+        stage('Clone Repository') {
             steps {
-                echo 'Cloning repository...'
-                // Clone the repository using the scm (source code management)
+                echo '📥 Cloning repository...'
                 checkout scm
             }
         }
@@ -13,17 +19,29 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image
-                    bat 'docker build -t food-delivery-app:latest .'
+                    echo '🐳 Building Docker image...'
+                    bat "docker build -t %IMAGE_NAME%:latest ."
                 }
             }
         }
 
-        stage('Run Container') {
+        stage('Stop & Remove Old Container') {
             steps {
                 script {
-                    // Run Docker container
-                    bat 'docker run -d -p 3000:3000 food-delivery-app:latest'
+                    echo '🛑 Stopping and removing old container if exists...'
+                    bat """
+                        docker ps -q --filter "name=%CONTAINER_NAME%" | findstr . && docker stop %CONTAINER_NAME% || echo No running container
+                        docker ps -aq --filter "name=%CONTAINER_NAME%" | findstr . && docker rm %CONTAINER_NAME% || echo No container to remove
+                    """
+                }
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                script {
+                    echo '🚀 Running new container...'
+                    bat "docker run -d -p %DOCKER_PORT%:%DOCKER_PORT% --name %CONTAINER_NAME% %IMAGE_NAME%:latest"
                 }
             }
         }
@@ -31,19 +49,28 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat """
-                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                        docker tag food-delivery-app:latest %DOCKER_USER%/food-delivery-app:latest
-                        docker push %DOCKER_USER%/food-delivery-app:latest
-                    """
+                    script {
+                        echo '📤 Pushing image to Docker Hub...'
+                        bat """
+                            docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                            docker tag %IMAGE_NAME%:latest %DOCKER_USER%/%IMAGE_NAME%:latest
+                            docker push %DOCKER_USER%/%IMAGE_NAME%:latest
+                        """
+                    }
                 }
             }
         }
 
         stage('Done') {
             steps {
-                echo 'Build and Run complete!'
+                echo '✅ CI/CD Pipeline completed successfully!'
             }
+        }
+    }
+
+    post {
+        failure {
+            echo '❌ Build Failed! Please check the errors.'
         }
     }
 }
