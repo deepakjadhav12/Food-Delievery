@@ -32,7 +32,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat """
-                        set DOCKER_TLS_VERIFY=0
                         echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                         docker tag food-delivery-app:latest %DOCKER_USER%/food-delivery-app:latest
                         docker push %DOCKER_USER%/food-delivery-app:latest
